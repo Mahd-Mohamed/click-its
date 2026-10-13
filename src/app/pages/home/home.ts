@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 interface Slide {
@@ -25,14 +34,21 @@ interface QuickAccessItem {
   fill?: boolean;
 }
 
+export interface CustomerItem {
+  image: string;
+  name: string;
+}
+
 @Component({
   selector: 'app-home',
   imports: [CommonModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit, OnDestroy {
-  protected readonly slides: Slide[] = [
+export class Home implements OnInit, AfterViewInit, OnDestroy {
+  constructor(private readonly ngZone: NgZone) {}
+
+  readonly slides: Slide[] = [
     {
       image: 'slider1.jpg',
       title: 'Customer Centricity and Value',
@@ -55,7 +71,7 @@ export class Home implements OnInit, OnDestroy {
     },
   ];
 
-  protected readonly newsItems: HomeNewsItem[] = [
+  readonly newsItems: HomeNewsItem[] = [
     {
       title: 'ARUBA Sales Champion Q4/2017',
       date: '28 November 2017',
@@ -79,7 +95,7 @@ export class Home implements OnInit, OnDestroy {
     },
   ];
 
-  protected readonly quickAccessItems: QuickAccessItem[] = [
+  readonly quickAccessItems: QuickAccessItem[] = [
     {
       title: 'Check Warranty',
       description:
@@ -114,29 +130,116 @@ export class Home implements OnInit, OnDestroy {
     },
   ];
 
-  protected readonly currentSlide = signal(0);
+  // Hero Slider
+  readonly currentSlide = signal(0);
   private autoplayTimer?: ReturnType<typeof setInterval>;
   private readonly intervalMs = 5000;
+
+  // Customers Slider
+  readonly customers: CustomerItem[] = [
+    { image: 'Customers/imgi_2_BAG.jpg', name: 'Bavarian Auto Group' },
+    { image: 'Customers/imgi_3_ahly-bank.jpg', name: 'National Bank of Egypt' },
+    { image: 'Customers/imgi_4_cib.jpg', name: 'CIB Bank' },
+    { image: 'Customers/imgi_5_blom.jpg', name: 'Blom Bank' },
+    { image: 'Customers/imgi_6_masr-bank.jpg', name: 'Banque misr' },
+    { image: 'Customers/imgi_7_arab-bank1.jpg', name: 'Arab Bank' },
+    { image: 'Customers/imgi_8_masr_elkher.jpg', name: 'Misr ElKheir Foundation' },
+    { image: 'Customers/imgi_9_index.jpg', name: 'Telecom Egypt' },
+    { image: 'Customers/imgi_10_m.jpg', name: 'Mobinil' },
+    { image: 'Customers/imgi_11_q.jpg', name: 'Alcatel-Lucent' },
+    { image: 'Customers/imgi_12_2.jpg', name: 'OCI' },
+    { image: 'Customers/imgi_13_1.jpg', name: 'Arab Contractors' },
+    { image: 'Customers/imgi_14_10.jpg', name: 'Ministry of Water Resources and Irrigation' },
+    { image: 'Customers/imgi_15_9.jpg', name: 'Ministry of Justice' },
+    { image: 'Customers/imgi_16_8.jpg', name: 'Ministry of Higher Education' },
+    { image: 'Customers/imgi_17_7.jpg', name: 'Ministry of Electricity and Energy' },
+    { image: 'Customers/imgi_18_5.jpg', name: 'Drainage & Drinking Water Company' },
+    { image: 'Customers/imgi_19_4.jpg', name: 'Central Traffic Department' },
+    { image: 'Customers/imgi_20_5-1.jpg', name: 'Alexandria Port Authority' },
+    { image: 'Customers/imgi_21_12.jpg', name: 'Nozha International Hospital' },
+    { image: 'Customers/imgi_22_11.jpg', name: 'Dar Al Fouad Hospital' },
+    { image: 'Customers/imgi_23_14.jpg', name: 'Toshiba' },
+    { image: 'Customers/imgi_24_13.jpg', name: 'Dina Farms' },
+    { image: 'Customers/imgi_25_16.jpg', name: 'Suez-Canal' },
+    { image: 'Customers/imgi_26_15.jpg', name: 'Misr Insurance' },
+    { image: 'Customers/imgi_27_17.jpg', name: 'Library of Alexandria' },
+    { image: 'Customers/imgi_28_20.jpg', name: 'Al Masry Al Youm' },
+    { image: 'Customers/imgi_29_19.jpg', name: 'Al Ahram' },
+    { image: 'Customers/imgi_30_18.jpg', name: 'Akhbar Al Youm' },
+    { image: 'Customers/imgi_31_23.jpg', name: 'GASCO' },
+    { image: 'Customers/imgi_32_22.jpg', name: 'Enppi' },
+    { image: 'Customers/imgi_33_21.jpg', name: 'Agiba' },
+    { image: 'Customers/imgi_34_245.jpg', name: 'IBN SINA Pharma' },
+    // Duplicate for seamless infinite scrolling loop
+    { image: 'Customers/imgi_2_BAG.jpg', name: 'Bavarian Auto Group' },
+    { image: 'Customers/imgi_3_ahly-bank.jpg', name: 'National Bank of Egypt' },
+    { image: 'Customers/imgi_4_cib.jpg', name: 'CIB Bank' },
+    { image: 'Customers/imgi_5_blom.jpg', name: 'Blom Bank' },
+    { image: 'Customers/imgi_6_masr-bank.jpg', name: 'Banque misr' },
+    { image: 'Customers/imgi_7_arab-bank1.jpg', name: 'Arab Bank' },
+    { image: 'Customers/imgi_8_masr_elkher.jpg', name: 'Misr ElKheir Foundation' },
+    { image: 'Customers/imgi_9_index.jpg', name: 'Telecom Egypt' },
+    { image: 'Customers/imgi_10_m.jpg', name: 'Mobinil' },
+    { image: 'Customers/imgi_11_q.jpg', name: 'Alcatel-Lucent' },
+    { image: 'Customers/imgi_12_2.jpg', name: 'OCI' },
+    { image: 'Customers/imgi_13_1.jpg', name: 'Arab Contractors' },
+    { image: 'Customers/imgi_14_10.jpg', name: 'Ministry of Water Resources and Irrigation' },
+    { image: 'Customers/imgi_15_9.jpg', name: 'Ministry of Justice' },
+    { image: 'Customers/imgi_16_8.jpg', name: 'Ministry of Higher Education' },
+    { image: 'Customers/imgi_17_7.jpg', name: 'Ministry of Electricity and Energy' },
+    { image: 'Customers/imgi_18_5.jpg', name: 'Drainage & Drinking Water Company' },
+    { image: 'Customers/imgi_19_4.jpg', name: 'Central Traffic Department' },
+    { image: 'Customers/imgi_20_5-1.jpg', name: 'Alexandria Port Authority' },
+    { image: 'Customers/imgi_21_12.jpg', name: 'Nozha International Hospital' },
+    { image: 'Customers/imgi_22_11.jpg', name: 'Dar Al Fouad Hospital' },
+    { image: 'Customers/imgi_23_14.jpg', name: 'Toshiba' },
+    { image: 'Customers/imgi_24_13.jpg', name: 'Dina Farms' },
+    { image: 'Customers/imgi_25_16.jpg', name: 'Suez-Canal' },
+    { image: 'Customers/imgi_26_15.jpg', name: 'Misr Insurance' },
+    { image: 'Customers/imgi_27_17.jpg', name: 'Library of Alexandria' },
+    { image: 'Customers/imgi_28_20.jpg', name: 'Al Masry Al Youm' },
+    { image: 'Customers/imgi_29_19.jpg', name: 'Al Ahram' },
+    { image: 'Customers/imgi_30_18.jpg', name: 'Akhbar Al Youm' },
+    { image: 'Customers/imgi_31_23.jpg', name: 'GASCO' },
+    { image: 'Customers/imgi_32_22.jpg', name: 'Enppi' },
+    { image: 'Customers/imgi_33_21.jpg', name: 'Agiba' },
+    { image: 'Customers/imgi_34_245.jpg', name: 'IBN SINA Pharma' },
+  ];
+
+  @ViewChild('customerTrack')
+  private customerTrack?: ElementRef<HTMLDivElement>;
+
+  private customerAnimFrameId?: number;
+  private isCustomerSliderPaused = false;
+  private customerUserInteractionTimeout?: ReturnType<typeof setTimeout>;
+  private customerScrollPosition = 0;
+  private lastTime = 0;
 
   ngOnInit(): void {
     this.startAutoplay();
   }
 
-  ngOnDestroy(): void {
-    this.stopAutoplay();
+  ngAfterViewInit(): void {
+    this.startCustomerAutoScroll();
   }
 
-  protected next(): void {
+  ngOnDestroy(): void {
+    this.stopAutoplay();
+    this.stopCustomerAutoScroll();
+  }
+
+  // Hero Slider Methods
+  next(): void {
     this.currentSlide.update((index) => (index + 1) % this.slides.length);
   }
 
-  protected prev(): void {
+  prev(): void {
     this.currentSlide.update(
       (index) => (index - 1 + this.slides.length) % this.slides.length,
     );
   }
 
-  protected goTo(index: number): void {
+  goTo(index: number): void {
     this.currentSlide.set(index);
     this.restartAutoplay();
   }
@@ -157,5 +260,100 @@ export class Home implements OnInit, OnDestroy {
     if (this.autoplayTimer) {
       this.startAutoplay();
     }
+  }
+
+  // Customers Slider Methods
+  private startCustomerAutoScroll(): void {
+    this.stopCustomerAutoScroll();
+    this.lastTime = performance.now();
+
+    this.ngZone.runOutsideAngular(() => {
+      const step = (currentTime: number) => {
+        const delta = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+        this.lastTime = currentTime;
+
+        const el = this.customerTrack?.nativeElement;
+        if (el && !this.isCustomerSliderPaused) {
+          const halfWidth = el.scrollWidth / 2;
+          if (halfWidth > 0) {
+            this.customerScrollPosition += 45 * delta;
+            if (this.customerScrollPosition >= halfWidth) {
+              this.customerScrollPosition -= halfWidth;
+            }
+            el.scrollLeft = this.customerScrollPosition;
+          }
+        }
+
+        this.customerAnimFrameId = requestAnimationFrame(step);
+      };
+
+      this.customerAnimFrameId = requestAnimationFrame(step);
+    });
+  }
+
+  private stopCustomerAutoScroll(): void {
+    if (this.customerAnimFrameId) {
+      cancelAnimationFrame(this.customerAnimFrameId);
+      this.customerAnimFrameId = undefined;
+    }
+    if (this.customerUserInteractionTimeout) {
+      clearTimeout(this.customerUserInteractionTimeout);
+      this.customerUserInteractionTimeout = undefined;
+    }
+  }
+
+  pauseCustomerSlider(): void {
+    this.isCustomerSliderPaused = true;
+  }
+
+  resumeCustomerSlider(): void {
+    const el = this.customerTrack?.nativeElement;
+    if (el) {
+      this.customerScrollPosition = el.scrollLeft;
+    }
+    this.lastTime = performance.now();
+    this.isCustomerSliderPaused = false;
+  }
+
+  scrollNextCustomer(): void {
+    const el = this.customerTrack?.nativeElement;
+    if (!el) return;
+    this.pauseCustomerSlider();
+    el.scrollBy({ left: 320, behavior: 'smooth' });
+
+    if (this.customerUserInteractionTimeout) {
+      clearTimeout(this.customerUserInteractionTimeout);
+    }
+    this.customerUserInteractionTimeout = setTimeout(() => {
+      if (el) {
+        const halfWidth = el.scrollWidth / 2;
+        if (el.scrollLeft >= halfWidth) {
+          el.scrollLeft -= halfWidth;
+        }
+        this.customerScrollPosition = el.scrollLeft;
+      }
+      this.resumeCustomerSlider();
+    }, 2000);
+  }
+
+  scrollPrevCustomer(): void {
+    const el = this.customerTrack?.nativeElement;
+    if (!el) return;
+    this.pauseCustomerSlider();
+    const halfWidth = el.scrollWidth / 2;
+    if (el.scrollLeft <= 10) {
+      el.scrollLeft = halfWidth;
+    }
+    el.scrollBy({ left: -320, behavior: 'smooth' });
+
+    if (this.customerUserInteractionTimeout) {
+      clearTimeout(this.customerUserInteractionTimeout);
+    }
+    this.customerUserInteractionTimeout = setTimeout(() => {
+      if (el) {
+        this.customerScrollPosition = el.scrollLeft;
+      }
+      this.resumeCustomerSlider();
+    }, 2000);
   }
 }

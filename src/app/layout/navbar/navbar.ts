@@ -23,26 +23,12 @@ export class Navbar {
     {
       label: 'About Us',
       path: '/about-us',
-      children: [
-        { label: 'Mission', path: '/mission' },
-        { label: 'Vision', path: '/vision' },
-        { label: 'Core Values', path: '/core-values' },
-      ],
+      
     },
     {
       label: 'Solutions',
       path: '/solutions',
-      children: [
-        { label: 'Virtualization', path: '/virtualization' },
-        { label: 'Security Solutions', path: '/security-solutions' },
-        { label: 'Blade Server Solution', path: '/blade-server-solution' },
-        { label: 'Storage Solutions', path: '/storage-solutions' },
-        { label: 'Network Solutions', path: '/network-solutions' },
-        { label: 'VoIP Solution', path: '/voip-solution' },
-        { label: 'Disaster Recovery', path: '/disaster-recovery' },
-        { label: 'Printing Solution', path: '/printing-solution' },
-        { label: 'Internet Solutions', path: '/internet-solutions' },
-      ],
+    
     },
     { label: 'Services', path: '/services' },
     { label: 'Partners', path: '/partners' },

@@ -12,21 +12,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/about-us/about-us').then((m) => m.AboutUs),
   },
   {
-    path: 'mission',
-    title: 'Our Mission',
-    loadComponent: () => import('./pages/mission/mission').then((m) => m.Mission),
-  },
-  {
-    path: 'vision',
-    title: 'Our Vision',
-    loadComponent: () => import('./pages/vision/vision').then((m) => m.Vision),
-  },
-  {
-    path: 'core-values',
-    title: 'Core Values',
-    loadComponent: () => import('./pages/core-values/core-values').then((m) => m.CoreValues),
-  },
-  {
     path: 'solutions',
     title: 'Solutions',
     loadComponent: () => import('./pages/solutions/solutions').then((m) => m.Solutions),
